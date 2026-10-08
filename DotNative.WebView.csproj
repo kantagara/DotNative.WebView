@@ -1,6 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
+    <TargetFrameworks>net9.0;net10.0</TargetFrameworks>
+    <TargetFrameworks
+      Condition="'$(NETCoreSdkVersion)' != '' and $([MSBuild]::VersionLessThan('$(NETCoreSdkVersion)', '10.0.100'))"
+      >net9.0</TargetFrameworks>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <IsAotCompatible>true</IsAotCompatible>
@@ -9,12 +12,26 @@
     <DotNativePluginEntry>WebViewPlugin</DotNativePluginEntry>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="../dotNative/src/DotNative/DotNative.csproj" Condition="Exists('../dotNative/src/DotNative/DotNative.csproj')" />
-    <PackageReference Include="DotNative" Version="0.1.0-preview.10" Condition="!Exists('../dotNative/src/DotNative/DotNative.csproj')" />
-    <DotNativeChannel Include="dotnative.webview" Version="1" Symbol="WebViewChannel" />
-    <None Update="Platform/**/*;buildTransitive/**/*" Pack="true" PackagePath="%(Identity)" />
-    <None Update="dotnative/plugin.json" Pack="true" PackagePath="dotnative/plugin.json" />
-    <None Update="README.md" Pack="true" PackagePath="README.md" />
-    <None Update="LICENSE" Pack="true" PackagePath="LICENSE" />
+    <ProjectReference
+      Include="../dotNative/src/DotNative/DotNative.csproj"
+      Condition="Exists('../dotNative/src/DotNative/DotNative.csproj')"
+    />
+    <PackageReference
+      Include="DotNative"
+      Version="0.1.0-preview.10"
+      Condition="!Exists('../dotNative/src/DotNative/DotNative.csproj')"
+    />
+    <None Remove="Platform/**/*;buildTransitive/**/*" />
+    <None Include="Platform/**/*;buildTransitive/**/*" Pack="true" PackagePath="%(Identity)" />
+    <None Remove="README.md" />
+    <None Include="README.md" Pack="true" PackagePath="README.md" />
+    <None Remove="LICENSE" />
+    <None Include="LICENSE" Pack="true" PackagePath="LICENSE" />
   </ItemGroup>
+  <ItemGroup>
+    <None Remove="ORIGIN.md" />
+    <None Include="ORIGIN.md" Pack="true" PackagePath="/" />
+  </ItemGroup>
+  <Import Project="build/PluginAuthoring.props" />
+  <Import Project="build/PluginAuthoring.targets" />
 </Project>

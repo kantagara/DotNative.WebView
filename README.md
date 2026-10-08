@@ -4,7 +4,7 @@ Native in-app browser surfaces for DotNative on Android, iOS and macOS.
 
 ```csharp
 builder.Services.AddWebView();
-var browser = services.GetRequiredService<IWebView>();
+var browser = services.WebView;
 
 await browser.OpenAsync(new Uri("https://example.com"), new WebViewOptions
 {
@@ -18,6 +18,10 @@ The plugin creates a native browser window/sheet with back, forward, reload and
 close controls. It supports HTTP and HTTPS URLs, request headers, an optional
 user agent, JavaScript evaluation, and current URL lookup. JavaScript is disabled
 by default. Android blocks file/content access and mixed content.
+
+For Android, add `android.permission.INTERNET` to the app manifest. iOS/macOS
+App Transport Security and Android cleartext-traffic policy still apply; use
+HTTPS unless the application deliberately configures local HTTP access.
 
 ## Platform coverage
 
@@ -39,17 +43,42 @@ URL navigation and JavaScript execute in the platform WebView. Treat page
 content and JavaScript as untrusted. The package does not grant file URL access,
 intercept navigation, or provide a native-to-web message bridge.
 
-## Upstream
+## Source origin
 
-This is an independent DotNative implementation. It does not include or copy
-Flutter/Dart source. The API is informed by the open-source
-[webview_flutter](https://pub.dev/packages/webview_flutter) package (BSD-3-Clause)
-and uses platform system WebView engines. Flutter's source and license remain at
-[flutter/packages](https://github.com/flutter/packages/tree/main/packages/webview_flutter).
+This independently authored DotNative implementation is MIT licensed and uses
+platform system WebView engines. See [source origin](ORIGIN.md).
 
 ## Build
 
-The project targets .NET 9 and packages as `DotNative.WebView`. For a local
+The project targets .NET 9 and .NET 10 and packages as `DotNative.WebView`. For a local
 checkout beside `dotNative`, it references the framework source. A standalone
 checkout uses the published `DotNative` NuGet package. Native source is compiled
 and linked by DotNative's plugin build pipeline.
+
+## Service access
+
+Import `DotNative.WebView` to access the plugin through `IServiceProvider`:
+
+```csharp
+using DotNative.WebView;
+
+var plugin = services.WebView;
+```
+
+The getter calls `GetRequiredService<IWebView>()` on every access, preserving
+DI lifetimes and the usual missing-registration error. Register the plugin with
+`AddWebView(...)` before building the provider.
+
+A `net10.0` application uses the property syntax with C# 14 or later. A
+`net9.0` application uses only the method equivalent:
+
+```csharp
+var plugin = services.WebView();
+```
+
+The package contains separate `net9.0` and `net10.0` assemblies. NuGet selects
+the assembly matching the application target framework. `NET10_0_OR_GREATER`
+selects the property; the `#else` branch selects the method.
+
+Build and pack both targets with .NET 10 SDK. A source build using .NET 9 SDK
+builds only `net9.0`; it does not produce the .NET 10 assembly.
