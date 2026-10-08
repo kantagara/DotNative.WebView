@@ -1,0 +1,5 @@
+{
+  "id": "DotNative.WebView",
+  "kind": "native",
+  "entry": "WebViewPlugin"
+}

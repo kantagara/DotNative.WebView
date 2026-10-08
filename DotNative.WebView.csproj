@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsAotCompatible>true</IsAotCompatible>
+    <Version>0.1.0-preview.1</Version>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <DotNativePluginEntry>WebViewPlugin</DotNativePluginEntry>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../dotNative/src/DotNative/DotNative.csproj" Condition="Exists('../dotNative/src/DotNative/DotNative.csproj')" />
+    <PackageReference Include="DotNative" Version="0.1.0-preview.10" Condition="!Exists('../dotNative/src/DotNative/DotNative.csproj')" />
+    <DotNativeChannel Include="dotnative.webview" Version="1" Symbol="WebViewChannel" />
+    <None Update="Platform/**/*;buildTransitive/**/*" Pack="true" PackagePath="%(Identity)" />
+    <None Update="dotnative/plugin.json" Pack="true" PackagePath="dotnative/plugin.json" />
+    <None Update="README.md" Pack="true" PackagePath="README.md" />
+    <None Update="LICENSE" Pack="true" PackagePath="LICENSE" />
+  </ItemGroup>
+</Project>
